@@ -28,6 +28,7 @@ def apply_move(move, score, grid):
     :param grid: grid of the game
     :return: bool gameover , int score
     """
+    temp = grid.copy()
     if move == 'w':
         for j in range(grid.shape[1]):  # for each column
             for i in range(1, grid.shape[0]):  # for each row except 1st
@@ -80,7 +81,7 @@ def apply_move(move, score, grid):
                     else:  # Different value but not empty also
                         break  # can no longer move
 
-    return random_loc(grid), score
+    return False if np.array_equal(temp, grid) else random_loc(grid), score
 
 
 if __name__ == "__main__":
