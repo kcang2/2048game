@@ -9,13 +9,13 @@ def random_loc(grid):
     :return: bool gameover
     """
     rc = np.argwhere(grid == 0)
-    if rc.size <= 1:  # if one space left, the random will take it, game is over
+
+    if len(rc) < 1:
         return True
 
     i = list(range(len(rc)))
     loc = rc[np.random.choice(i)]
-    val = np.random.choice([2, 4])
-    grid[loc[0], loc[1]] = val
+    grid[loc[0], loc[1]] = 2
 
     return False
 
