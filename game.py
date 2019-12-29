@@ -106,6 +106,7 @@ if __name__ == "__main__":
     grid = np.zeros((4, 4), dtype=np.int32)
     score = 0
     gameover = False
+    won = False
     valids = ['w', 's', 'a', 'd']
 
     for _ in range(2):
@@ -114,6 +115,10 @@ if __name__ == "__main__":
         grid[y, x] = 2
 
     while not gameover:
+        if not won:
+            if (grid == 2048).any():
+                print("You've Won!")
+                won = True
         print("Score: " + str(score))
         print(grid)
         move = input("Move: w=up, s=down, a=left, d=right")
