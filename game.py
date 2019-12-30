@@ -20,6 +20,48 @@ def random_loc(grid):
     return False
 
 
+def shift_row(vector, is_reverse):
+    """
+    Applies shifting to each column in the row
+    :param vector: Row vector
+    :param is_reverse: Left or Right
+    :return: score increment, int
+    """
+    l = len(vector)
+    score_inc = 0
+
+    if is_reverse:
+        s = -1
+        start = 1
+        end = l
+        step = 1
+        wlb = 1
+        wub = l
+    else:
+        s = 1
+        start = l - 2
+        end = -1
+        step = -1
+        wlb = 0
+        wub = l-1
+
+    for i in range(start, end, step):  # for each column except 1st
+        p = i
+        while wlb <= p < wub:
+            if vector[p+s] == 0:  # next space is 0
+                vector[p+s] = vector[p+s] + vector[p]  # move it
+                vector[p] = 0  # make the previous empty
+                p += s  # keep moving
+            elif vector[p+s] == vector[p]:  # next space is same
+                score_inc += 2 * vector[p+s]  # update score
+                vector[p+s] = vector[p+s] + vector[p]  # move it
+                vector[p] = 0  # make the previous empty
+                break
+            else:  # Different value
+                break  # can no longer move
+    return score_inc
+
+
 def apply_move(move, score, grid):
     """
     Apply move
@@ -29,73 +71,25 @@ def apply_move(move, score, grid):
     :return: bool gameover , int score
     """
     temp = grid.copy()
-    if move == 'w':
-        for j in range(grid.shape[1]):  # for each column
-            for i in range(1, grid.shape[0]):  # for each row except 1st
-                p = i
-                while 0 < p < grid.shape[0]:  # 1 to 3
-                    if grid[p-1, j] == 0:  # next space is 0
-                        grid[p-1, j] = grid[p-1, j] + grid[p, j]  # move it
-                        grid[p, j] = 0  # make the previous empty
-                        p -= 1  # keep moving
-                    elif grid[p-1, j] == grid[p, j]:  # next space is same
-                        score += 2 * grid[p - 1, j]  # update score
-                        grid[p-1, j] = grid[p-1, j] + grid[p, j]  # move it
-                        grid[p, j] = 0  # make the previous empty
-                        break
-                    else:  # Different value
-                        break  # can no longer move
 
-    elif move == 's':
-        for j in range(grid.shape[1]):  # for each column
-            for i in range(grid.shape[0]-2, -1, -1):  # for each row except last
-                p = i  # pointer
-                while 0 <= p < grid.shape[0]-1:  # 0 to 2
-                    if grid[p+1, j] == 0:  # next space is 0
-                        grid[p+1, j] = grid[p+1, j] + grid[p, j]  # move it
-                        grid[p, j] = 0  # make the previous empty
-                        p += 1  # keep moving
-                    elif grid[p + 1, j] == grid[p, j]:  # next space is same
-                        score += 2 * grid[p + 1, j]  # update score
-                        grid[p+1, j] = grid[p+1, j] + grid[p, j]  # move it
-                        grid[p, j] = 0  # make the previous empty
-                        break
-                    else:  # Different value
-                        break  # can no longer move
+    if move == 'w' or move == 'a':
+        is_reverse = True
+    else:
+        is_reverse = False
 
-    elif move == 'a':
-        for i in range(grid.shape[0]):  # for each row
-            for j in range(1, grid.shape[1]):  # for each column except 1st
-                p = j
-                while 0 < p < grid.shape[1]:  # 1 to 3
-                    if grid[i, p-1] == 0:  # next space is 0
-                        grid[i, p-1] = grid[i, p-1] + grid[i, p]  # move it
-                        grid[i, p] = 0  # make the previous empty
-                        p -= 1  # keep moving
-                    elif grid[i, p-1] == grid[i, p]:  # next space is same
-                        score += 2 * grid[i, p - 1]  # update score
-                        grid[i, p-1] = grid[i, p-1] + grid[i, p]  # move it
-                        grid[i, p] = 0  # make the previous empty
-                        break
-                    else:  # Different value
-                        break  # can no longer move
+    if move == 'w' or move == 's':
+        is_transpose = True
+    else:
+        is_transpose = False
 
-    elif move == 'd':
-        for i in range(grid.shape[0]):  # for each row
-            for j in range(grid.shape[1]-2, -1, -1):  # for each column except last
-                p = j
-                while 0 <= p < grid.shape[1]-1:  # 0 to 2
-                    if grid[i, p+1] == 0:  # next space is 0 or same
-                        grid[i, p+1] = grid[i, p+1] + grid[i, p]  # move it
-                        grid[i, p] = 0  # make the previous empty
-                        p += 1  # keep moving
-                    elif grid[i, p+1] == grid[i, p]:
-                        score += 2 * grid[i, p + 1]  # update score
-                        grid[i, p+1] = grid[i, p+1] + grid[i, p]  # move it
-                        grid[i, p] = 0  # make the previous empty
-                        break
-                    else:  # Different value
-                        break  # can no longer move
+    if is_transpose:
+        grid = grid.T
+
+    for i in range(grid.shape[0]):  # for each row
+        score += shift_row(grid[i], is_reverse)
+
+    if is_transpose:
+        grid = grid.T
 
     return False if np.array_equal(temp, grid) else random_loc(grid), score
 
